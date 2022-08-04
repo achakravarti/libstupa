@@ -76,6 +76,40 @@ main_exec()
 }
 
 
+# Clones required project from GitHub into the Vagrant box.
+
+vg_clone()
+{
+        log_info "looking for $1 repository"
+
+        if [ -d "$1" ]
+        then
+                log_ok "$1 repository found, skipping"
+
+        else
+                repo="https://github.com:$1.git"
+
+                vagrant ssh -c "git clone --recurse-submodules $repo"   \
+                    || log_fail "failed to clone $1"
+
+                log_ok "cloned $1, configure and build as required"
+        fi
+}
+
+
+# Boots Vagrant box
+
+vg_boot()
+{
+        log_info "booting Vagrant box"
+
+        vagrant up || log_fail 'failed to boot box'
+        vg_clone achakravarti/libstupa
+
+        log_ok 'vagrant box boot successful, happy coding :)'
+}
+
+
 # Builds the required Vagrantfile depending on the specified target.
 
 vg_build()
