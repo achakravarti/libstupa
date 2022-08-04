@@ -1,0 +1,3 @@
+[submodule "ext/ru.sh"]
+	path = ext/ru.sh
+	url = https://github.com/achakravarti/ru.sh
