@@ -18,7 +18,7 @@ LOG_FILE=provision.log
 
 main_flags()
 {
-        DEFINE_string 'target' 'vagrant/arch' 'target environment' 1001
+        DEFINE_string 'target' 'arch' 'target environment' 1001
         DEFINE_boolean 'reset' false 'rebuild platform' 1002
 
         FLAGS "$@" || exit $?
@@ -37,35 +37,37 @@ main_exec()
 {
         if vagrant -v >/dev/null 2>&1
         then
-                log_ok "vagrant command found"
+                log_ok 'vagrant command found'
         else
-                log_fail  "vagrant command not found"
+                log_fail  'vagrant command not found'
         fi
 
         if ! [ -e Vagrantfile ]
         then
+                log_ok 'Vagrantfile found, building box'
+
                 vg_build
                 vg_boot
 
         else
-                log_ok "existing Vagrantfile found"
+                log_ok 'existing Vagrantfile found'
 
                 if [ "$FLAGS_reset" = "$FLAGS_TRUE" ]
                 then
-                        log_warn "--reset set, removing existing Vagrant box"
+                        log_warn '--reset set, removing existing Vagrant box'
 
                         vagrant halt >/dev/null 2>&1
                         vagrant destroy -f >/dev/null 2>&1
                         rm Vagrantfile
 
-                        log_ok "removed existing Vagrant box"
+                        log_ok 'removed existing Vagrant box, rebuilding'
 
                         vg_build
                         vg_boot
 
-                elif vagrant status | grep "is running" >/dev/null 2>&1
+                elif vagrant status | grep 'is running' >/dev/null 2>&1
                 then
-                        log_ok "Vagrant box already running, skipping"
+                        log_ok 'Vagrant box already running, skipping'
 
                 else
                         vg_boot
@@ -73,6 +75,45 @@ main_exec()
         fi
 }
 
+
+# Builds the required Vagrantfile depending on the specified target.
+
+vg_build()
+{
+        case "$FLAGS_target" in
+            arch)
+                vg_arch
+                ;;
+            *)
+                log_fail 'not implemented'
+                ;;
+        esac
+}
+
+
+# Builds the Vagrantfile for Arch Linux
+
+vg_arch()
+{
+        log_info 'building Vagrantfile for arch box'
+
+        echo "Vagrant.configure(\"2\") do |config|" > Vagrantfile
+        {
+                echo '  config.vm.box = \"generic/arch\"';
+                echo '  config.ssh.forward_agent = true';
+                echo '  config.vm.provision \"shell\", inline: <<-SHELL';
+                echo '    pacman -Syyu --noconfirm';
+                echo '    pacman -S base-devel git go --noconfirm --needed';
+                echo '    pacman -S pacman-contrib --noconfirm';
+                echo '    git clone https://aur.archlinux.org/yay.git';
+                echo '    chown -R vagrant:vagrant yay';
+                echo '    su - vagrant -c "cd yay; makepkg -si --noconfirm"';
+                echo '  SHELL';
+                echo 'end';
+        } >> Vagrantfile
+
+        log_ok 'Vagrantfile build for arch box'
+}
 
 # Parse command line flags and execute script.
 
