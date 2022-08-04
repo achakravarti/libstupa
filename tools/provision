@@ -87,7 +87,7 @@ vg_clone()
                 log_ok "$1 repository found, skipping"
 
         else
-                repo="https://github.com:$1.git"
+                repo="https://github.com/$1.git"
 
                 vagrant ssh -c "git clone --recurse-submodules $repo"   \
                     || log_fail "failed to clone $1"
