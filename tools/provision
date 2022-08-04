@@ -133,9 +133,9 @@ vg_arch()
 
         echo "Vagrant.configure(\"2\") do |config|" > Vagrantfile
         {
-                echo '  config.vm.box = \"generic/arch\"';
+                echo '  config.vm.box = "generic/arch"';
                 echo '  config.ssh.forward_agent = true';
-                echo '  config.vm.provision \"shell\", inline: <<-SHELL';
+                echo '  config.vm.provision "shell", inline: <<-SHELL';
                 echo '    pacman -Syyu --noconfirm';
                 echo '    pacman -S base-devel git go --noconfirm --needed';
                 echo '    pacman -S pacman-contrib --noconfirm';
