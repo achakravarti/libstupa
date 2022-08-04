@@ -1,0 +1,9 @@
+#!/bin/sh
+
+. "$(dirname "0")/../ext/shflags/shflags"
+. "$(dirname "0")/../ext/ru.sh/src/log.sh"
+. "$(dirname "0")/../ext/ru.sh/src/os.sh"
+. "$(dirname "0")/../ext/ru.sh/src/pkg.sh"
+
+
+LOG_FILE=provision.log
