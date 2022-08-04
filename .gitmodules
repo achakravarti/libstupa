@@ -1,3 +1,6 @@
 [submodule "ext/ru.sh"]
 	path = ext/ru.sh
 	url = https://github.com/achakravarti/ru.sh
+[submodule "ext/shflags"]
+	path = ext/shflags
+	url = https://github.com/kward/shflags
