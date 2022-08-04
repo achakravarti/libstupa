@@ -1,2 +1,5 @@
 # Datbase artefacts
 *.db
+
+# Log files
+*.log
