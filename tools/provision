@@ -134,6 +134,7 @@ vg_arch()
         echo "Vagrant.configure(\"2\") do |config|" > Vagrantfile
         {
                 echo '  config.vm.box = "generic/arch"';
+                echo '  config.vm.define "libstupa_arch"';
                 echo '  config.ssh.forward_agent = true';
                 echo '  config.vm.provision "shell", inline: <<-SHELL';
                 echo '    pacman -Syyu --noconfirm';
