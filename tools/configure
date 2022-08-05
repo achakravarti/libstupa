@@ -64,15 +64,18 @@ main_exec()
                 emsg='failed to create virtual environment'
                 python3 -m venv ../venv | log_dump || exit "$emsg"
 
-                log_ok 'virtual environment created, installing requirements'
+                log_ok 'virtual environment created'
 
-                . ../venv/bin/activate
-
-                emsg='failed to install required Python packages'
-                pip install pytest | log_dump || log_fail "$emsg"
-                pip install pytest-bdd | log_dump || log_fail "$emsg"
-                deactivate
         fi
+
+        log_info 'installing Python packages'
+
+        . ../venv/bin/activate
+
+        emsg='failed to install required Python packages'
+        pip install pytest | log_dump || log_fail "$emsg"
+        pip install pytest-bdd | log_dump || log_fail "$emsg"
+        deactivate
 }
 
 
