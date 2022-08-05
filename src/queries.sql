@@ -1,0 +1,9 @@
+-- create new template
+-- update template
+-- archive template
+-- restore template
+-- delete template
+--
+-- list templates
+-- list templates csv
+-- load template
