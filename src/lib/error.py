@@ -1,3 +1,12 @@
+import enum
+
+
+class ErrorCode(enum.Enum):
+    NONE = 0
+    DATABASE = 1
+    NOTFOUND = 2
+    MISSINGFLAG =3
+    INVALIDOP = 4
 
 
 class Error:
