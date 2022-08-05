@@ -5,6 +5,9 @@
 # the ru.sh os.sh module.
 OS_VERSION_MIN_UBUNTU=2004
 
+# Log file where messages are stored.
+LOG_FILE=configure.log
+
 
 # Source required modules
 . "$(dirname "0")/../ext/shflags/shflags"
@@ -27,14 +30,16 @@ main_flags()
 }
 
 
+# Performs the actual configuration. If --upgrade is set, we first upgrade
+# packages.  Subsequently, we prepare the Python environment. The log_dump()
+# function seems to have a bug with piping, so we're invoking it in an alternate
+# manner.
 main_exec()
 {
-        echo "MIN UBUNTU = $OS_VERSION_MIN_UBUNTU"
-        mount | log_dump
         log_info 'starting libelmy configuration'
 
         if [ "$FLAGS_upgrade" -eq "$FLAGS_FALSE" ]; then
-                msg_warn '--upgrade unset, skipping upgrade'
+                log_warn '--upgrade unset, skipping upgrade'
         else
                 pkg_upgrade
         fi
@@ -50,6 +55,17 @@ main_exec()
                 log_fail 'not implemented'
                 ;;
         esac
+
+        if [ -d ../venv ]
+        then
+                log_ok 'virtual environment already exists, skipping'
+        else
+                log_info 'virtual environment not found, creating'
+
+                emsg='failed to create virtual environment'
+                log_dump "$(python3 -m venv ../venv || exit "$emsg")"
+                #python3 -m venv ../venv | log_dump || exit "$emsg"
+        fi
 }
 
 
