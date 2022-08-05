@@ -90,6 +90,7 @@ vg_clone()
                 repo="https://github.com/$1.git"
 
                 vagrant ssh -c "git clone --recurse-submodules $repo"   \
+                    | log_dump                                          \
                     || log_fail "failed to clone $1"
 
                 log_ok "cloned $1, configure and build as required"
@@ -103,7 +104,7 @@ vg_boot()
 {
         log_info "booting Vagrant box"
 
-        vagrant up || log_fail 'failed to boot box'
+        vagrant up | log_dump || log_fail 'failed to boot box'
         vg_clone achakravarti/libstupa
 
         log_ok 'vagrant box boot successful, happy coding :)'
