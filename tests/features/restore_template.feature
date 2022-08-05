@@ -1,0 +1,1 @@
+Feature: Restoring a template

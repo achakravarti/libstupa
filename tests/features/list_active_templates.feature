@@ -1,0 +1,1 @@
+Feature: Listing active templates

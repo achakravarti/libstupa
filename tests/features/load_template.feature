@@ -1,0 +1,1 @@
+Feature: Loading a template

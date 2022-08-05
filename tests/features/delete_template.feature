@@ -1,0 +1,1 @@
+Feature: Deleting a template

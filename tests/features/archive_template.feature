@@ -1,0 +1,1 @@
+Feature: Archiving a template
