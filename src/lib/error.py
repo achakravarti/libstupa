@@ -30,33 +30,33 @@ class Error:
         self._code = value
 
     @property
-    def rule(self) -> str:
+    def rule(self):
         """Gets the rule where the error occurred."""
         return self._rule
 
     @rule.setter
-    def rule(self, value: str):
+    def rule(self, value):
         """Sets the rule where the error occurred."""
         self._rule = value
 
     @property
-    def msg(self) -> str:
+    def msg(self):
         """Gets the error message."""
         return self._msg
 
     @msg.setter
-    def msg(self, value: str):
+    def msg(self, value):
         """Sets the error message."""
         self._msg = value
 
 
-    def __str__(self) -> str:
+    def __str__(self):
         """Gets the string representation of this error."""
         return 'Code: {}\nRule: {}\nMessage: {}'.format(
             self.code, self.rule, self.msg)
 
 
-    def json(self) -> str:
+    def json(self):
         """Gets the JSON representation of this error."""
         jd = {
             'code': self.code,
