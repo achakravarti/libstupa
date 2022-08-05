@@ -3,9 +3,10 @@
 -- identified by a combination of its tag and version. However, we use a
 -- separate integer primary for performance reasons. Templates may be archived,
 -- i.e. they are soft-deleted, and the is_archived flag tracks this. The actual
--- template content is stored in the content field. We choose to abort in case
--- there is a unique constraint violation; this is the default behaviour but we
--- are making it explicit.
+-- template content is stored in the content field.
+--
+-- We choose to abort in case there is a unique constraint violation; this is
+-- the default behaviour but we are making it explicit.
 
 CREATE TABLE IF NOT EXISTS templates (
        id               INTEGER PRIMARY KEY,

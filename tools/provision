@@ -1,0 +1,156 @@
+#!/bin/sh
+
+. "$(dirname "0")/../ext/shflags/shflags"
+. "$(dirname "0")/../ext/ru.sh/src/log.sh"
+. "$(dirname "0")/../ext/ru.sh/src/os.sh"
+
+
+# Log file where messages are stored.
+
+LOG_FILE=provision.log
+
+
+# Sets up command line flags; we use long options in order to be more explicit.
+# --target is the target environment to provision, and --reset rebuilds the
+# target environment if it already exists. As of now we only support Vagrant
+# environments.
+
+main_flags()
+{
+        DEFINE_string 'target' 'arch' 'target environment' 1001
+        DEFINE_boolean 'reset' false 'rebuild platform' 1002
+
+        FLAGS "$@" || exit $?
+        eval set -- "$FLAGS_ARGV"
+}
+
+
+# Performs actual provisioning steps. Since we only support Vagrant environments
+# as of now, we start off by checking that the vagrant executable is available.
+# Subsequently, one of the following execution paths is taken
+#   - If no Vagrantfile is found, we build and boot the Vagrant box
+#   - If a Vagrantfile is found and --reset is specified, we rebuild the box
+#   - If a Vagrantfile exist and --reset is not specified, we run the box
+
+main_exec()
+{
+        if vagrant -v >/dev/null 2>&1
+        then
+                log_ok 'vagrant command found'
+        else
+                log_fail  'vagrant command not found'
+        fi
+
+        if ! [ -e Vagrantfile ]
+        then
+                log_ok 'Vagrantfile found, building box'
+
+                vg_build
+                vg_boot
+
+        else
+                log_ok 'existing Vagrantfile found'
+
+                if [ "$FLAGS_reset" = "$FLAGS_TRUE" ]
+                then
+                        log_warn '--reset set, removing existing Vagrant box'
+
+                        vagrant halt >/dev/null 2>&1
+                        vagrant destroy -f >/dev/null 2>&1
+                        rm Vagrantfile
+
+                        log_ok 'removed existing Vagrant box, rebuilding'
+
+                        vg_build
+                        vg_boot
+
+                elif vagrant status | grep 'is running' >/dev/null 2>&1
+                then
+                        log_ok 'Vagrant box already running, skipping'
+
+                else
+                        vg_boot
+                fi
+        fi
+}
+
+
+# Clones required project from GitHub into the Vagrant box.
+
+vg_clone()
+{
+        log_info "looking for $1 repository"
+
+        if [ -d "$1" ]
+        then
+                log_ok "$1 repository found, skipping"
+
+        else
+                repo="https://github.com/$1.git"
+
+                vagrant ssh -c "git clone --recurse-submodules $repo"   \
+                    | log_dump                                          \
+                    || log_fail "failed to clone $1"
+
+                log_ok "cloned $1, configure and build as required"
+        fi
+}
+
+
+# Boots Vagrant box
+
+vg_boot()
+{
+        log_info "booting Vagrant box"
+
+        vagrant up | log_dump || log_fail 'failed to boot box'
+        vg_clone achakravarti/libstupa
+
+        log_ok 'vagrant box boot successful, happy coding :)'
+}
+
+
+# Builds the required Vagrantfile depending on the specified target.
+
+vg_build()
+{
+        case "$FLAGS_target" in
+            arch)
+                vg_arch
+                ;;
+            *)
+                log_fail 'not implemented'
+                ;;
+        esac
+}
+
+
+# Builds the Vagrantfile for Arch Linux
+
+vg_arch()
+{
+        log_info 'building Vagrantfile for arch box'
+
+        echo "Vagrant.configure(\"2\") do |config|" > Vagrantfile
+        {
+                echo '  config.vm.box = "generic/arch"';
+                echo '  config.vm.define "libstupa_arch"';
+                echo '  config.ssh.forward_agent = true';
+                echo '  config.vm.provision "shell", inline: <<-SHELL';
+                echo '    pacman -Syyu --noconfirm';
+                echo '    pacman -S --needed --noconfirm base-devel glibc git go';
+                echo '    pacman -S --noconfirm pacman-contrib';
+                echo '    git clone https://aur.archlinux.org/yay.git';
+                echo '    chown -R vagrant:vagrant yay';
+                echo '    su - vagrant -c "cd yay; makepkg -si --noconfirm"';
+                echo '  SHELL';
+                echo 'end';
+        } >> Vagrantfile
+
+        log_ok 'Vagrantfile build for arch box'
+}
+
+# Parse command line flags and execute script.
+
+main_flags "$@"
+main_exec
