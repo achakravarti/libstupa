@@ -23,17 +23,17 @@ def check_template_id_9999_does_not_exist():
     pass
 
 
-@when('`stupa --id=1 archive` is invoked')
+@when('stupa --id=1 archive is invoked')
 def archive_template_id_1():
     pass
 
 
-@when('`stupa --id=2 archive` is invoked')
+@when('stupa --id=2 archive is invoked')
 def archive_template_id_2():
     pass
 
 
-@when('`stupa --id=9999 archive` is invoked')
+@when('stupa --id=9999 archive is invoked')
 def archive_template_id_9999():
     pass
 
