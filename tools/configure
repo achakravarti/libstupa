@@ -67,8 +67,10 @@ main_exec()
                 log_ok 'virtual environment created, installing requirements'
 
                 . ../venv/bin/activate
-                pip install pytest
-                pip install pytest-bdd
+
+                emsg='failed to install required Python packages'
+                pip install pytest | log_dump || log_fail "$emsg"
+                pip install pytest-bdd | log_dump || log_fail "$emsg"
                 deactivate
         fi
 }
