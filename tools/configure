@@ -65,7 +65,22 @@ main_exec()
                 python3 -m venv ../venv | log_dump || exit "$emsg"
 
                 log_ok 'virtual environment created'
+
         fi
+
+        log_info 'installing Python packages'
+
+        . ../venv/bin/activate
+
+        if [ "$FLAGS_upgrade" -eq "$FLAGS_TRUE" ]
+        then
+                pip install --upgrade pip | log_dump || log_fail "$emsg"
+        fi
+
+        emsg='failed to install required Python packages'
+        pip install pytest | log_dump || log_fail "$emsg"
+        pip install pytest-bdd | log_dump || log_fail "$emsg"
+        deactivate
 }
 
 
