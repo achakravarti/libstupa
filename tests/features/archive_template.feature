@@ -5,7 +5,7 @@ Feature: Archiving a template
 
   Scenario: Archiving an active template
     Given there is an active template with ID 1
-    When `stupa --id=1 archive` is invoked
+    When stupa --id=1 archive is invoked
     Then the template with ID 1 is archived
 
   Scenario: Archiving a non-existent template
