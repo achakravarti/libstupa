@@ -1,0 +1,58 @@
+#!/bin/sh
+
+
+# Specify minimum required version for Ubuntu, overriding the default value in
+# the ru.sh os.sh module.
+OS_VERSION_MIN_UBUNTU=2004
+
+
+# Source required modules
+. "$(dirname "0")/../ext/shflags/shflags"
+. "$(dirname "0")/../ext/ru.sh/src/log.sh"
+. "$(dirname "0")/../ext/ru.sh/src/os.sh"
+. "$(dirname "0")/../ext/ru.sh/src/su.sh"
+. "$(dirname "0")/../ext/ru.sh/src/pkg.sh"
+
+
+
+# Sets up command line flags; we use long options in order to be more explicit.
+# --upgrade specifies whether host packages need to be upgraded before
+# proceeding.
+main_flags()
+{
+        DEFINE_boolean 'upgrade' false 'upgrade packages' 1001
+
+        FLAGS "$@" || exit $?
+        eval set -- "$FLAGS_ARGV"
+}
+
+
+main_exec()
+{
+        echo "MIN UBUNTU = $OS_VERSION_MIN_UBUNTU"
+        mount | log_dump
+        log_info 'starting libelmy configuration'
+
+        if [ "$FLAGS_upgrade" -eq "$FLAGS_FALSE" ]; then
+                msg_warn '--upgrade unset, skipping upgrade'
+        else
+                pkg_upgrade
+        fi
+
+        case "$OS_DISTRO" in
+            arch)
+                pkg_install python
+                pkg_install python-pip
+                pkg_install python-virtualenv
+                ;;
+
+            *)
+                log_fail 'not implemented'
+                ;;
+        esac
+}
+
+
+# Parse command line flags and execute script.
+main_flags "$@"
+main_exec
