@@ -1,4 +1,5 @@
 import enum
+import json
 
 
 class ErrorCode(enum.Enum):
@@ -47,3 +48,19 @@ class Error:
     def msg(self, value: str):
         """Sets the error message."""
         self._msg = value
+
+
+    def __str__(self) -> str:
+        """Gets the string representation of this error."""
+        return 'Code: {}\nRule: {}\nMessage: {}'.format(
+            self.code, self.rule, self.msg)
+
+
+    def json(self) -> str:
+        """Gets the JSON representation of this error."""
+        jd = {
+            'code': self.code,
+            'rule': self.rule,
+            'msg': self.msg
+        }
+        return json.dumps(jd, indent=2)
