@@ -63,6 +63,8 @@ main_exec()
 
                 emsg='failed to create virtual environment'
                 python3 -m venv ../venv | log_dump || exit "$emsg"
+
+                log_ok 'virtual environment created'
         fi
 }
 
