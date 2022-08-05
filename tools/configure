@@ -32,8 +32,7 @@ main_flags()
 
 # Performs the actual configuration. If --upgrade is set, we first upgrade
 # packages.  Subsequently, we prepare the Python environment. The log_dump()
-# function seems to have a bug with piping, so we're invoking it in an alternate
-# manner.
+# function seems to have a bug with piping, we'll investigate later.
 main_exec()
 {
         log_info 'starting libelmy configuration'
@@ -63,8 +62,7 @@ main_exec()
                 log_info 'virtual environment not found, creating'
 
                 emsg='failed to create virtual environment'
-                log_dump "$(python3 -m venv ../venv || exit "$emsg")"
-                #python3 -m venv ../venv | log_dump || exit "$emsg"
+                python3 -m venv ../venv | log_dump || exit "$emsg"
         fi
 }
 
