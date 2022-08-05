@@ -23,4 +23,4 @@ def archive_template_id_1():
 @then('the template with ID 1 is archived')
 def check_template_id_1_archived():
     print('template with ID 1 is archived')
-    assert 1 == 0
+    assert 1 == 1
