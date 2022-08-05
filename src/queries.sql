@@ -1,6 +1,3 @@
--- list templates
--- list templates csv
--- load template
 
 
 -- create new template
@@ -29,3 +26,21 @@ WHERE id = ?;
 -- delete template
 DELETE FROM templates
 WHERE id = ?;
+
+
+-- list active templates
+SELECT id, tag, version
+FROM templates
+WHERE is_archived = 0;
+
+
+-- list archived templates
+SELECT id, tag, version
+FROM templates
+WHERE is_archived = 1;
+
+
+-- load template
+SELECT id, tag, version, content, assets_path, is_archived
+FROM templates
+where id = ?;
