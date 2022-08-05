@@ -38,6 +38,11 @@ def archive_template_id_9999():
     pass
 
 
+@when('stupa archive is invoked')
+def archive_template_id_9999():
+    pass
+
+
 @then('the template with ID 1 is archived')
 def check_template_id_1_archived():
     pass
