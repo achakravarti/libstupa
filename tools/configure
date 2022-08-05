@@ -1,0 +1,74 @@
+#!/bin/sh
+
+
+# Specify minimum required version for Ubuntu, overriding the default value in
+# the ru.sh os.sh module.
+OS_VERSION_MIN_UBUNTU=2004
+
+# Log file where messages are stored.
+LOG_FILE=configure.log
+
+
+# Source required modules
+. "$(dirname "0")/../ext/shflags/shflags"
+. "$(dirname "0")/../ext/ru.sh/src/log.sh"
+. "$(dirname "0")/../ext/ru.sh/src/os.sh"
+. "$(dirname "0")/../ext/ru.sh/src/su.sh"
+. "$(dirname "0")/../ext/ru.sh/src/pkg.sh"
+
+
+
+# Sets up command line flags; we use long options in order to be more explicit.
+# --upgrade specifies whether host packages need to be upgraded before
+# proceeding.
+main_flags()
+{
+        DEFINE_boolean 'upgrade' false 'upgrade packages' 1001
+
+        FLAGS "$@" || exit $?
+        eval set -- "$FLAGS_ARGV"
+}
+
+
+# Performs the actual configuration. If --upgrade is set, we first upgrade
+# packages.  Subsequently, we prepare the Python environment. The log_dump()
+# function seems to have a bug with piping, so we're invoking it in an alternate
+# manner.
+main_exec()
+{
+        log_info 'starting libelmy configuration'
+
+        if [ "$FLAGS_upgrade" -eq "$FLAGS_FALSE" ]; then
+                log_warn '--upgrade unset, skipping upgrade'
+        else
+                pkg_upgrade
+        fi
+
+        case "$OS_DISTRO" in
+            arch)
+                pkg_install python
+                pkg_install python-pip
+                pkg_install python-virtualenv
+                ;;
+
+            *)
+                log_fail 'not implemented'
+                ;;
+        esac
+
+        if [ -d ../venv ]
+        then
+                log_ok 'virtual environment already exists, skipping'
+        else
+                log_info 'virtual environment not found, creating'
+
+                emsg='failed to create virtual environment'
+                log_dump "$(python3 -m venv ../venv || exit "$emsg")"
+                #python3 -m venv ../venv | log_dump || exit "$emsg"
+        fi
+}
+
+
+# Parse command line flags and execute script.
+main_flags "$@"
+main_exec

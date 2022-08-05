@@ -1,2 +1,9 @@
 # Datbase artefacts
 *.db
+
+# Log files
+*.log
+
+# Vagrant artefacts
+.vagrant
+Vagrantfile
