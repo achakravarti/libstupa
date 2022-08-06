@@ -4,29 +4,17 @@ from dataclasses import asdict, dataclass
 
 
 class Status(enum.Enum):
-    """Represents an operation status.
-
-    NONE: No error
-    EDATABASE: A database error
-    ENA: Item not found
-    EOP: Invalid operation
-    EPROP: Invalid data
-    """
     NONE = 0
     EDATABASE = 1
-    ENA = 2
-    EOP = 3
-    EPROP = 4
+    ENOTFOUND = 2
+    EFLAG =3
+    EOP = 4
+    EPROP = 5
 
 
 @dataclass
 class Error:
-    """Represents a processing error.
-
-    code: Error code
-    rule: Name of rule where error occurs
-    msg: Error message
-    """
+    """Represents a processing error. """
     code: Status
     rule: str
     msg: str
@@ -38,16 +26,9 @@ class Error:
 
 @dataclass
 class Template:
-    """Represents a single template.
-
-    id: Template ID
-    name: Template name
-    version: Template version
-    content: Template content
-    archived: Is template archived?
-    """
+    """Represents a single template"""
     id: int
-    name: str
+    title: str
     version: str
     content: str
     archived: bool
@@ -59,14 +40,9 @@ class Template:
 
 @dataclass
 class TemplateSummary:
-    """Represents a single template summary.
-
-    id: Template ID
-    name: Template name
-    version: Template version
-    """
+    """Represents a single template summary"""
     id: int
-    name: str
+    title: str
     version: str
 
     def json(self):
