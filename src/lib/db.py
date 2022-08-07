@@ -4,16 +4,20 @@ from .error import DatabaseError
 
 
 class Db:
-    SQL_INIT = '''
+    SQL_INIT_TABLE = '''
     CREATE TABLE IF NOT EXISTS templates (
        id               INTEGER PRIMARY KEY,
        name             TEXT NOT NULL,
        version          TEXT NOT NULL,
        content          TEXT NOT NULL,
        is_archived      BOOLEAN NOT NULL DEFAULT 0,
-       UNIQUE           (id, tag) ON CONFLICT ABORT
+       UNIQUE           (id, name) ON CONFLICT ABORT
     );
-    CREATE INDEX IF NOT EXISTS idx_templates__tag ON templates (tag);
+    '''
+    SQL_INIT_INDEX_NAME = '''
+    CREATE INDEX IF NOT EXISTS idx_templates__name ON templates (name);
+    '''
+    SQL_INIT_INDEX_VERSION = '''
     CREATE INDEX IF NOT EXISTS idx_templates__version ON templates (version);
     '''
     SQL_LIST_ACTIVE = '''
@@ -86,7 +90,9 @@ class Db:
     @staticmethod
     def init():
         """Initialises the database."""
-        Db.exec(Db.SQL_INIT, None)
+        Db.exec(Db.SQL_INIT_TABLE, None)
+        Db.exec(Db.SQL_INIT_INDEX_NAME, None)
+        Db.exec(Db.SQL_INIT_INDEX_VERSION, None)
 
     @staticmethod
     def exec(sql: str, params: Optional[Tuple]) -> List:

@@ -8,5 +8,6 @@
 .vagrant
 Vagrantfile
 
-# Virtual environment
+# Python artefacts
 venv/
+*pyc
