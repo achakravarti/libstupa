@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from ..lib.rules import Rule
+
+from lib import Rule
 
 
 def main():
