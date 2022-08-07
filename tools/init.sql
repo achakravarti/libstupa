@@ -10,10 +10,10 @@
 
 CREATE TABLE IF NOT EXISTS templates (
        id               INTEGER PRIMARY KEY,
-       tag              TEXT NOT NULL,
+       name             TEXT NOT NULL,
        version          TEXT NOT NULL,
        content          TEXT NOT NULL,
-       is_archived      INTEGER NOT NULL DEFAULT 0,
+       is_archived      BOOLEAN NOT NULL DEFAULT 0,
        UNIQUE           (id, tag) ON CONFLICT ABORT
 );
 

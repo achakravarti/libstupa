@@ -1,37 +1,100 @@
-import enum
 import json
 from dataclasses import asdict, dataclass
-
-
-class Status(enum.Enum):
-    NONE = 0
-    EDATABASE = 1
-    ENOTFOUND = 2
-    EFLAG =3
-    EOP = 4
-    EPROP = 5
+from typing import Tuple
+from .error import InvalidPropertyError
 
 
 @dataclass
-class Error:
-    """Represents a processing error. """
-    code: Status
-    rule: str
-    msg: str
+class TemplateId:
+    """Template ID value object."""
+    value: int
 
-    def json(self):
-        """Gets the JSON representation of this error."""
-        return json.dumps(asdict(self), indent=2)
+    def serialize(self) -> Tuple:
+        """Serializes this value object to a tuple."""
+        return (self.value,)
+
+    def validate(self):
+        """Checks if the value is valid."""
+        if self.value is None or self.value < 0:
+            raise InvalidPropertyError(
+                'Template ID must be an integer greater than 0')
+
+
+@dataclass
+class TemplateName:
+    """Template name value object."""
+    value: str
+
+    def serialize(self) -> Tuple:
+        """Serializes this value object to a tuple."""
+        return (self.value,)
+
+    def validate(self):
+        """Checks if the value is valid."""
+        if self.value is not None and self.value != '':
+            raise InvalidPropertyError('Template name must be an specified')
+
+
+@dataclass
+class TemplateVersion:
+    """Template version value object."""
+    value: str
+
+    def serialize(self) -> Tuple:
+        """Serializes this value object to a tuple."""
+        return (self.value,)
+
+    def validate(self):
+        """Checks if the value is valid."""
+        if self.value is not None and self.value != '':
+            raise InvalidPropertyError('Template version must be an specified')
+
+
+@dataclass
+class TemplateContent:
+    """Template content value object."""
+    value: str
+
+    def serialize(self) -> Tuple:
+        """Serializes this value object to a tuple."""
+        return (self.value,)
+
+    def validate(self):
+        """Checks if the value is valid."""
+        if self.value is not None and self.value != '':
+            raise InvalidPropertyError('Template content must be an specified')
 
 
 @dataclass
 class Template:
-    """Represents a single template"""
-    id: int
-    title: str
-    version: str
-    content: str
+    """Represents a single template.
+
+    id_: Template ID
+    name: Template name
+    version: Template version
+    content: Template content
+    archived: Is template archived?
+    """
+    id_: TemplateId
+    name: TemplateName
+    version: TemplateVersion
+    content: TemplateContent
     archived: bool
+
+    def validate(self):
+        """Checks whether this entity is valid."""
+        self.id_.validate()
+        self.name.validate()
+        self.version.validate()
+        self.content.validate()
+
+    def serialize(self) -> Tuple:
+        """Serializes this entity to a tuple."""
+        return (
+            self.id_.value,
+            self.name.value,
+            self.version.value,
+            self.content.value)
 
     def json(self):
         """Gets the JSON representation of this template."""
@@ -40,10 +103,21 @@ class Template:
 
 @dataclass
 class TemplateSummary:
-    """Represents a single template summary"""
-    id: int
-    title: str
-    version: str
+    """Represents a single template summary.
+
+    id_: Template ID
+    name: Template name
+    version: Template version
+    """
+    id_: TemplateId
+    name: TemplateName
+    version: TemplateVersion
+
+    def validate(self):
+        """Checks whether this entity is valid."""
+        self.id_.validate()
+        self.name.validate()
+        self.version.validate()
 
     def json(self):
         """Gets the JSON representation of this template."""

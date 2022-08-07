@@ -80,6 +80,7 @@ main_exec()
         emsg='failed to install required Python packages'
         pip install pytest | log_dump || log_fail "$emsg"
         pip install pytest-bdd | log_dump || log_fail "$emsg"
+        pip install Jinja2 | log_dump || log_fail "$emsg"
         deactivate
 }
 
