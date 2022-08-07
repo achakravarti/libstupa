@@ -4,6 +4,18 @@ from .error import DatabaseError
 
 
 class Db:
+    SQL_INIT = '''
+    CREATE TABLE IF NOT EXISTS templates (
+       id               INTEGER PRIMARY KEY,
+       name             TEXT NOT NULL,
+       version          TEXT NOT NULL,
+       content          TEXT NOT NULL,
+       is_archived      BOOLEAN NOT NULL DEFAULT 0,
+       UNIQUE           (id, tag) ON CONFLICT ABORT
+    );
+    CREATE INDEX IF NOT EXISTS idx_templates__tag ON templates (tag);
+    CREATE INDEX IF NOT EXISTS idx_templates__version ON templates (version);
+    '''
     SQL_LIST_ACTIVE = '''
     SELECT id, name, version, content
     FROM templates
@@ -72,7 +84,13 @@ class Db:
     '''
 
     @staticmethod
+    def init():
+        """Initialises the database."""
+        Db.exec(Db.SQL_INIT, None)
+
+    @staticmethod
     def exec(sql: str, params: Optional[Tuple]) -> List:
+        """Executes a query with optional parameters."""
         try:
             conn = sqlite3.connect('libstupa.db')
             cur = conn.cursor()

@@ -60,6 +60,7 @@ class Rule:
     @staticmethod
     def list_active() -> List[TemplateSummary]:
         """Returns the list of active templates."""
+        Db.init()
         res = Db.exec(Db.SQL_LIST_ACTIVE, None)
         return [Parse.summary(x) for x in res]
 
