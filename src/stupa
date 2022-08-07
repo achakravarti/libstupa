@@ -8,8 +8,8 @@ def main():
     try:
         print('Stupa main() called...')
         Rule.list_active()
-    except:
-        print('ERROR')
+    except Exception as e:
+        print(e.args[0])
 
 
 if __name__ == '__main__':
