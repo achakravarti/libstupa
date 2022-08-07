@@ -7,3 +7,6 @@
 # Vagrant artefacts
 .vagrant
 Vagrantfile
+
+# Virtual environment
+venv/
