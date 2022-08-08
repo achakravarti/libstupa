@@ -1,15 +1,226 @@
 #!/usr/bin/env python3
 
+import sys
+import getopt
+from lib import (
+    DatabaseError, InvalidOperationError, InvalidPropertyError, NotFoundError,
+    Rule, Template, TemplateId, TemplateContent, TemplateName, TemplateVersion)
 
-from lib import Rule
+
+class Opt:
+    """Processes command line options."""
+    def __init__(self):
+        self.id_ = ''
+        self.name = ''
+        self.version = ''
+        self.content = ''
+        self.json = False
+        self.help_ = False
+        self.Version = False
+        try:
+            argv = sys.argv[1:]
+            flags = ['id=', 'name=', 'version=', 'content=', 'json']
+            opts, args = getopt.getopt(argv, 'jHV', flags)
+            for opt, arg in opts:
+                if opt in ['-H']:
+                    self.help_ = True
+                if opt in ['-V']:
+                    self.Version = True
+                if opt in ['-j']:
+                    self.json = True
+                if opt in ['--id']:
+                    self.id_ = arg
+                if opt in ['--name']:
+                    self.name = arg
+                if opt in ['--version']:
+                    self.version = arg
+                if opt in ['--content']:
+                    self.content = arg
+        except getopt.GetoptError as e:
+            raise InvalidOperationError(e.args[0])
+
+
+class Cmd:
+    """Processes command line arguments."""
+    def __init__(self):
+        self._rule = sys.argv[-1]
+        self._argc = len(sys.argv) - 1
+        self._opts = Opt()
+
+    def validate_id(self, rule: str, required: bool = True):
+        """Validates presence/absence of --id flag."""
+        if required and not self._opts.id_:
+            raise InvalidOperationError(f'--id required for {rule}')
+        if not required and self._opts.id_:
+            raise InvalidOperationError(f'--id not recognized for {rule}')
+
+    def validate_name(self, rule: str, required: bool = True):
+        """Validates presence/absence of --name flag."""
+        if required and not self._opts.name:
+            raise InvalidOperationError(f'--name required for {rule}')
+        if not required and self._opts.name:
+            raise InvalidOperationError(f'--name not recognized for {rule}')
+
+    def validate_version(self, rule: str, required: bool = True):
+        """Validates presence/absence of --version flag."""
+        if required and not self._opts.version:
+            raise InvalidOperationError(f'--version required for {rule}')
+        if not required and self._opts.name:
+            raise InvalidOperationError(f'--version not recognized for {rule}')
+
+    def validate_content(self, rule: str, required: bool = True):
+        """Validates presence/absence of --content flag."""
+        if required and not self._opts.content:
+            raise InvalidOperationError(f'--version required for {rule}')
+        if not required and self._opts.content:
+            raise InvalidOperationError(f'--version not recognized for {rule}')
+
+    def exec(self):
+        """Executes the requested command."""
+        if self._opts.help_ == True:
+            self.help_()
+        if self._opts.Version == True:
+            self.Version()
+        if self._rule not in [
+                'active', 'archived', 'load', 'render', 'create', 'update',
+                'archive', 'restore', 'delete']:
+            raise InvalidOperationError(
+                'rule {} not recognized'.format(self._rule))
+        getattr(self, self._rule)()
+
+    def help_(self):
+        """Handles -H option."""
+        if self._opts.Version:
+            raise InvalidOperationError('-V not recognized for -H')
+        self.validate_id('-H', False)
+        self.validate_name('-H', False)
+        self.validate_version('-H', False)
+        self.validate_content('-H', False)
+        usage()
+        sys.exit(0)
+
+    def Version(self):
+        """Handles -V option."""
+        if self._opts.help_:
+            raise InvalidOperationError('-H not recognized for -V')
+        self.validate_id('-V', False)
+        self.validate_name('-V', False)
+        self.validate_version('-V', False)
+        self.validate_content('-V', False)
+        print('VERSION INFO')
+        sys.exit(0)
+
+    def create(self):
+        """Handles create command."""
+        self.validate_id('create', False)
+        self.validate_name('create')
+        self.validate_version('create')
+        self.validate_content('create')
+        Rule.create(
+            Template(TemplateId(0), TemplateName(self._opts.name),
+            TemplateVersion(self._opts.version),
+            TemplateContent(self._opts.content), False))
+        if self._opts.json:
+            print('{"status": "OK"}')
+        else:
+            print('OK')
+        sys.exit(0)
+
+    def update(self):
+        """Handles update command."""
+        self.validate_id('update')
+        self.validate_name('update')
+        self.validate_version('update')
+        self.validate_content('update')
+        Rule.update(
+            Template(TemplateId(int(self._opts.id_)),
+            TemplateName(self._opts.name), TemplateVersion(self._opts.version),
+            TemplateContent(self._opts.content), False))
+        if self._opts.json:
+            print('{"status": "OK"}')
+        else:
+            print('OK')
+        sys.exit(0)
+
+    def archive(self):
+        """Handles archive command."""
+        self.validate_id('archive')
+        self.validate_name('archive', False)
+        self.validate_version('archive', False)
+        self.validate_content('archive', False)
+        Rule.archive(TemplateId(int(self._opts.id_)))
+        if self._opts.json:
+            print('{"status": "OK"}')
+        else:
+            print('OK')
+        sys.exit(0)
+
+    def restore(self):
+        """Handles restore command."""
+        self.validate_id('archive')
+        self.validate_name('archive', False)
+        self.validate_version('archive', False)
+        self.validate_content('archive', False)
+        Rule.restore(TemplateId(int(self._opts.id_)))
+        if self._opts.json:
+            print('{"status": "OK"}')
+        else:
+            print('OK')
+        sys.exit(0)
+
+    def delete(self):
+        """Handles delete command."""
+        self.validate_id('archive')
+        self.validate_name('archive', False)
+        self.validate_version('archive', False)
+        self.validate_content('archive', False)
+        Rule.delete(TemplateId(int(self._opts.id_)))
+        if self._opts.json:
+            print('{"status": "OK"}')
+        else:
+            print('OK')
+        sys.exit(0)
+
+
+def usage():
+    """Displays usage hint."""
+    print('Usage:')
+    print('\tstupa [-j] active')
+    print('\tstupa [-j] archived')
+    print('\tstupa [-j] --id=INT load')
+    print('\tstupa [-j] --id=INT --subs=JSON render')
+    print('\tstupa [-j] --name=STR --version=STR --content=STR create')
+    print('\tstupa [-j] --id=INT --name=STR --version=STR --content=STR update')
+    print('\tstupa [-j] --id=INT archive')
+    print('\tstupa [-j] --id=INT restore')
+    print('\tstupa [-j] --id=INT delete')
+    print('\tstupa -H')
+    print('\tstupa -V')
 
 
 def main():
+    """Main entry point."""
     try:
-        print('Stupa main() called...')
-        Rule.list_active()
+        Cmd().exec()
+        sys.exit(0)
+    except DatabaseError as e:
+        error(1, 'Database', e)
+    except InvalidOperationError as e:
+        error(2, 'Invalid Operation', e)
+    except InvalidPropertyError as e:
+        error(3, 'Invalid Property', e)
+    except NotFoundError as e:
+        error(4, 'Not Found', e)
     except Exception as e:
-        print(e.args[0])
+        error(5, 'Unhandled', e)
+
+
+def error(code: int, name: str, e: Exception):
+    """Processes errors."""
+    print(f'{name} Error ({code}): {e.args[0]}')
+    if code == 2:
+        usage()
+    sys.exit(code)
 
 
 if __name__ == '__main__':

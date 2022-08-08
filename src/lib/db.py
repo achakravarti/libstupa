@@ -46,25 +46,24 @@ class Db:
     SELECT exists(
         SELECT 1
         FROM templates
-        WHERE id = ? AND is_active = TRUE
+        WHERE id = ? AND is_archived = FALSE
     );
     '''
     SQL_ID_ARCHIVED = '''
     SELECT exists(
         SELECT 1
         FROM templates
-        WHERE id = ? AND is_active = FALSE
+        WHERE id = ? AND is_archived = TRUE
     );
     '''
     SQL_ID_FIND = '''
     SELECT id
     FROM templates
-    WHERE name = ? AND version = ?
-    );
+    WHERE name = ? AND version = ?;
     '''
     SQL_CREATE = '''
-    INSERT INTO templates (id, name, version, content)
-    VALUES (?, ?, ?, ?);
+    INSERT INTO templates (name, version, content)
+    VALUES (?, ?, ?);
     '''
     SQL_UPDATE = '''
     UPDATE templates
@@ -100,12 +99,14 @@ class Db:
         try:
             conn = sqlite3.connect('libstupa.db')
             cur = conn.cursor()
-            if params is not None:
-                res = cur.execute(sql, params).fetchall()
+            if params:
+                cur.execute(sql, params)
             else:
-                res = cur.execute(sql).fetchall()
+                cur.execute(sql)
+            conn.commit()
+            res = cur.fetchall()
             cur.close()
             conn.close()
             return res
-        except sqlite3.Error as e:
+        except Exception as e:
             raise DatabaseError(e.args[0])

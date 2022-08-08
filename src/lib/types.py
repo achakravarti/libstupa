@@ -17,7 +17,7 @@ class TemplateId:
         """Checks if the value is valid."""
         if self.value is None or self.value < 0:
             raise InvalidPropertyError(
-                'Template ID must be an integer greater than 0')
+                'template ID must be positive integer')
 
 
 @dataclass
@@ -31,8 +31,8 @@ class TemplateName:
 
     def validate(self):
         """Checks if the value is valid."""
-        if self.value is not None and self.value != '':
-            raise InvalidPropertyError('Template name must be an specified')
+        if not self.value:
+            raise InvalidPropertyError('template name required')
 
 
 @dataclass
@@ -46,8 +46,8 @@ class TemplateVersion:
 
     def validate(self):
         """Checks if the value is valid."""
-        if self.value is not None and self.value != '':
-            raise InvalidPropertyError('Template version must be an specified')
+        if not self.value:
+            raise InvalidPropertyError('template version required')
 
 
 @dataclass
@@ -61,8 +61,8 @@ class TemplateContent:
 
     def validate(self):
         """Checks if the value is valid."""
-        if self.value is not None and self.value != '':
-            raise InvalidPropertyError('Template content must be an specified')
+        if not self.value:
+            raise InvalidPropertyError('template content required')
 
 
 @dataclass

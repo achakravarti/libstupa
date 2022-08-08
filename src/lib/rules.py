@@ -4,6 +4,7 @@ from lib.error import InvalidOperationError, InvalidPropertyError, NotFoundError
 from .db import Db
 from .types import Template, TemplateId, TemplateSummary
 
+import sqlite3
 
 class Validate:
     """Helper validation methods for rules."""
@@ -35,9 +36,12 @@ class Validate:
         entity.id_.validate()
         entity.name.validate()
         entity.version.validate()
-        res = Db.exec(Db.SQL_ID_ARCHIVED, (entity.id_.value,))[0][0]
-        if res is not None and res != entity.id_.value:
-            raise InvalidPropertyError(f'ID {entity.id_} already exists')
+        res = Db.exec(Db.SQL_ID_FIND, (entity.name.value, entity.version.value))
+        if res is None or len(res) == 0:
+            return True
+        if res[0][0] != entity.id_.value:
+            raise InvalidPropertyError(
+                f'template {entity.name.value} ({entity.version.value}) already exists')
 
 
 class Parse:
@@ -73,25 +77,31 @@ class Rule:
     @staticmethod
     def load(id_: TemplateId) -> Template:
         """Loads an existing template."""
+        Db.init()
         Validate.exists(id_)
         return Parse.detail(Db.exec(Db.SQL_LOAD, id_.serialize())[0])
 
     @staticmethod
     def render(id_: TemplateId, subs: Dict) -> str:
         """Renders an existing template."""
+        Db.init()
         entity = Rule.load(id_)
         return Environment().from_string(entity.content.value).render(subs)
 
     @staticmethod
     def create(entity: Template):
         """Creates a new template."""
+        Db.init()
         entity.validate()
         Validate.unique(entity)
-        Db.exec(Db.SQL_CREATE, entity.serialize())
+        Db.exec(
+            Db.SQL_CREATE,
+            (entity.name.value, entity.version.value, entity.content.value))
 
     @staticmethod
     def update(entity: Template):
         """Updates an existing template."""
+        Db.init()
         entity.validate()
         Validate.unique(entity)
         Db.exec(Db.SQL_UPDATE, entity.serialize())
@@ -99,6 +109,7 @@ class Rule:
     @staticmethod
     def archive(id_: TemplateId):
         """Archives an active template."""
+        Db.init()
         Validate.exists(id_)
         Validate.active(id_)
         Db.exec(Db.SQL_ARCHIVE, id_.serialize())
@@ -106,6 +117,7 @@ class Rule:
     @staticmethod
     def restore(id_: TemplateId):
         """Restores an archived template."""
+        Db.init()
         Validate.exists(id_)
         Validate.archived(id_)
         Db.exec(Db.SQL_RESTORE, id_.serialize())
@@ -113,6 +125,7 @@ class Rule:
     @staticmethod
     def delete(id_: TemplateId):
         """Deletes an archived template."""
+        Db.init()
         Validate.exists(id_)
         Validate.archived(id_)
         Db.exec(Db.SQL_DELETE, id_.serialize())
