@@ -20,6 +20,16 @@ class Db:
     SQL_INIT_INDEX_VERSION = '''
     CREATE INDEX IF NOT EXISTS idx_templates__version ON templates (version);
     '''
+    SQL_COUNT_ACTIVE = '''
+    SELECT count(id)
+    FROM templates
+    WHERE is_archived = FALSE;
+    '''
+    SQL_COUNT_ARCHIVED = '''
+    SELECT count(id)
+    FROM templates
+    WHERE is_archived = TRUE;
+    '''
     SQL_LIST_ACTIVE = '''
     SELECT id, name, version, content
     FROM templates
@@ -85,19 +95,34 @@ class Db:
     FROM templates
     WHERE id = ?;
     '''
+    SQL_SAMPLE_1 = '''
+    INSERT OR IGNORE INTO templates (id, name, version, content, is_archived)
+    VALUES (1, 'Sample 1', 'v1.0', 'Sample 1 Content', FALSE);
+    '''
+    SQL_SAMPLE_2 = '''
+    INSERT OR IGNORE INTO templates (id, name, version, content, is_archived)
+    VALUES (2, 'Sample 2', 'v1.0', 'Sample 2 Content', FALSE);
+    '''
+    SQL_SAMPLE_3 = '''
+    INSERT OR IGNORE INTO templates (id, name, version, content, is_archived)
+    VALUES (3, 'Sample 3', 'v0.1', 'Sample 3 Content', TRUE);
+    '''
 
-    @staticmethod
-    def init():
-        """Initialises the database."""
-        Db.exec(Db.SQL_INIT_TABLE, None)
-        Db.exec(Db.SQL_INIT_INDEX_NAME, None)
-        Db.exec(Db.SQL_INIT_INDEX_VERSION, None)
+    def __init__(self, sample: bool = False):
+        """Initialises this database."""
+        self._db = 'libstupa-sample.db' if sample else 'libstupa.db'
+        self.exec(Db.SQL_INIT_TABLE, None)
+        self.exec(Db.SQL_INIT_INDEX_NAME, None)
+        self.exec(Db.SQL_INIT_INDEX_VERSION, None)
+        if sample:
+            self.exec(Db.SQL_SAMPLE_1, None)
+            self.exec(Db.SQL_SAMPLE_2, None)
+            self.exec(Db.SQL_SAMPLE_3, None)
 
-    @staticmethod
-    def exec(sql: str, params: Optional[Tuple]) -> List:
+    def exec(self, sql: str, params: Optional[Tuple]) -> List:
         """Executes a query with optional parameters."""
         try:
-            conn = sqlite3.connect('libstupa.db')
+            conn = sqlite3.connect(self._db)
             cur = conn.cursor()
             if params:
                 cur.execute(sql, params)

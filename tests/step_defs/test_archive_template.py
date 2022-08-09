@@ -1,16 +1,30 @@
 #!/usr/bin env python
 
 
-import pytest
+from pytest import fixture
 from pytest_bdd import scenarios, given, when, then
+from subprocess import Popen, PIPE
 
 
 scenarios('../features/archive_template.feature')
 
 
+@fixture
+def setupdb():
+    p = Popen("src/stupa -s --id=1 load", stdout=PIPE, stderr=PIPE, shell=True)
+    o, e = p.communicate()
+    rc = p.returncode
+
+
+
 @given('there is an active template with ID 1')
 def check_template_id_1_active():
-    pass
+    p = Popen("src/stupa -H", stdout=PIPE, stderr=PIPE, shell=True)
+    o, e = p.communicate()
+    rc = p.returncode
+    #print(o.decode('utf-8'))
+    #print(rc)
+    assert rc == 0
 
 
 @given('there is an archived template with ID 2')
@@ -39,7 +53,7 @@ def archive_template_id_9999():
 
 
 @when('stupa archive is invoked')
-def archive_template_id_9999():
+def archive():
     pass
 
 

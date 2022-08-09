@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict, dataclass
-from typing import Tuple
+from typing import Tuple, List
 from .error import InvalidPropertyError
 
 
@@ -98,7 +98,9 @@ class Template:
 
     def json(self):
         """Gets the JSON representation of this template."""
-        return json.dumps(asdict(self), indent=2)
+        j = '{{"id":{},"name":"{}","version":"{}", "content":"{}","archived":{}}}'.format(
+            self.id_, self.name, self.version, self.content, self.archived)
+        return json.loads(j)
 
 
 @dataclass
@@ -121,4 +123,15 @@ class TemplateSummary:
 
     def json(self):
         """Gets the JSON representation of this template."""
-        return json.dumps(asdict(self), indent=2)
+        j = '{{"id":{},"name":"{}","version":"{}"}}'.format(
+            self.id_, self.name, self.version)
+        return json.loads(j)
+
+    @staticmethod
+    def json_list(lst: List):
+        """Gets the JSON representation of a list of temmplate summaries."""
+        j = '['
+        for x in lst[:-1]:
+            j = j + json.dumps(x.json()) + ','
+        j = j + json.dumps(lst[-1].json()) + ']'
+        return json.loads(j)
