@@ -4,7 +4,6 @@ from lib.error import InvalidOperationError, InvalidPropertyError, NotFoundError
 from .db import Db
 from .types import Template, TemplateId, TemplateSummary
 
-import sqlite3
 
 class Validate:
     """Helper validation methods for rules."""
@@ -62,8 +61,8 @@ class Parse:
 class Rule:
     """Operation rules."""
 
-    def __init__(self, sample: bool = False):
-        self._db = Db(sample)
+    def __init__(self):
+        self._db = Db()
         self._vd = Validate(self._db)
 
     def count_active(self) -> int:
@@ -125,3 +124,7 @@ class Rule:
         self._vd.exists(id_)
         self._vd.archived(id_)
         self._db.exec(Db.SQL_DELETE, id_.serialize())
+
+    def reset(self):
+        """Resets database to empty state."""
+        self._db.exec(Db.SQL_RESET, None)

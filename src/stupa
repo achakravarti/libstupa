@@ -16,14 +16,13 @@ class Opt:
         self.name = ''
         self.version = ''
         self.content = ''
-        self.sample = False
         self.json = False
         self.Help = False
         self.Version = False
         try:
             argv = sys.argv[1:]
             flags = ['id=', 'name=', 'version=', 'content=', 'json']
-            opts, args = getopt.getopt(argv, 'sjHV', flags)
+            opts, args = getopt.getopt(argv, 'jHV', flags)
             for opt, arg in opts:
                 if opt in ['-H']:
                     self.Help = True
@@ -31,8 +30,6 @@ class Opt:
                     self.Version = True
                 if opt in ['-j']:
                     self.json = True
-                if opt in ['-s']:
-                    self.sample = True
                 if opt in ['--id']:
                     self.id_ = arg
                 if opt in ['--name']:
@@ -125,7 +122,7 @@ class Cmd:
         elif self._rule not in [
                 'active', 'archived', 'load', 'render', 'create', 'update',
                 'archive', 'restore', 'delete', 'count_active',
-                'count_archived']:
+                'count_archived', 'reset']:
             raise InvalidOperationError(
                 'rule {} not recognized'.format(self._rule))
         else:
@@ -148,56 +145,56 @@ class Cmd:
     def count_active(self):
         """Handles count-active command."""
         Validate('count_active', self._opts).none()
-        res = Rule(self._opts.sample).count_active()
+        res = Rule().count_active()
         if self._opts.json:
             print(f'{{"status": "OK", "count": {res}}}')
         else:
-            print(f'OK: {res} records found')
+            print(f'OK: {res} template(s) found')
 
     def count_archived(self):
         """Handles count-active command."""
         Validate('count_archived', self._opts).none()
-        res = Rule(self._opts.sample).count_archived()
+        res = Rule().count_archived()
         if self._opts.json:
             print(f'{{"status": "OK", "count": {res}}}')
         else:
-            print(f'OK: {res} records found')
+            print(f'OK: {res} template(s) found')
 
     def active(self):
         """Handles active command."""
         Validate('list_active', self._opts).none()
-        res = Rule(self._opts.sample).list_active()
+        res = Rule().list_active()
         count = len(res)
         if self._opts.json:
-            j = json.loads(f'{{"status": "OK", "count": {count}, "data":null}}')
+            j = json.loads(f'{{"status": "OK", "count": {count}, "templates":null}}')
             if count > 0:
-                j['data'] = TemplateSummary.json_list(res)
+                j['templates'] = TemplateSummary.json_list(res)
             print(json.dumps(j, indent=2))
         else:
-            print(f'OK: {count} records found')
+            print(f'OK: {count} template(s) found')
             print(res)
 
     def archived(self):
         """Handles archived command."""
         Validate('list_archived', self._opts).none()
-        res = Rule(self._opts.sample).list_archived()
+        res = Rule().list_archived()
         count = len(res)
         if self._opts.json:
-            j = json.loads(f'{{"status": "OK", "count": {count}, "data":null}}')
+            j = json.loads(f'{{"status": "OK", "count": {count}, "templates":null}}')
             if count > 0:
-                j['data'] = TemplateSummary.json_list(res)
+                j['templates'] = TemplateSummary.json_list(res)
             print(json.dumps(j, indent=2))
         else:
-            print(f'OK: {count} records found')
+            print(f'OK: {count} template(s) found')
             print(res)
 
     def load(self):
         """Handles load command."""
         Validate('load', self._opts).id_only()
-        res = Rule(self._opts.sample).load(TemplateId(int(self._opts.id_)))
+        res = Rule().load(TemplateId(int(self._opts.id_)))
         if self._opts.json:
-            j = json.loads(f'{{"status": "OK", "data":null}}')
-            j['data'] = res.json()
+            j = json.loads(f'{{"status": "OK", "template":null}}')
+            j['template'] = res.json()
             print(json.dumps(j, indent=2))
         else:
             print(f'OK: {res}')
@@ -205,7 +202,7 @@ class Cmd:
     def create(self):
         """Handles create command."""
         Validate('create', self._opts).no_id()
-        Rule(self._opts.sample).create(
+        Rule().create(
             Template(TemplateId(0), TemplateName(self._opts.name),
             TemplateVersion(self._opts.version),
             TemplateContent(self._opts.content), False))
@@ -217,7 +214,7 @@ class Cmd:
     def update(self):
         """Handles update command."""
         Validate('update', self._opts).all()
-        Rule(self._opts.sample).update(
+        Rule().update(
             Template(TemplateId(int(self._opts.id_)),
             TemplateName(self._opts.name), TemplateVersion(self._opts.version),
             TemplateContent(self._opts.content), False))
@@ -229,7 +226,7 @@ class Cmd:
     def archive(self):
         """Handles archive command."""
         Validate('archive', self._opts).id_only()
-        Rule(self._opts.sample).archive(TemplateId(int(self._opts.id_)))
+        Rule().archive(TemplateId(int(self._opts.id_)))
         if self._opts.json:
             print('{"status": "OK"}')
         else:
@@ -238,7 +235,7 @@ class Cmd:
     def restore(self):
         """Handles restore command."""
         Validate('restore', self._opts).id_only()
-        Rule(self._opts.sample).restore(TemplateId(int(self._opts.id_)))
+        Rule().restore(TemplateId(int(self._opts.id_)))
         if self._opts.json:
             print('{"status": "OK"}')
         else:
@@ -247,7 +244,16 @@ class Cmd:
     def delete(self):
         """Handles delete command."""
         Validate('delete', self._opts).id_only()
-        Rule(self._opts.sample).delete(TemplateId(int(self._opts.id_)))
+        Rule().delete(TemplateId(int(self._opts.id_)))
+        if self._opts.json:
+            print('{"status": "OK"}')
+        else:
+            print('OK')
+
+    def reset(self):
+        """Handles reset command."""
+        Validate('reset', self._opts).none()
+        Rule().reset()
         if self._opts.json:
             print('{"status": "OK"}')
         else:

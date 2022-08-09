@@ -95,29 +95,17 @@ class Db:
     FROM templates
     WHERE id = ?;
     '''
-    SQL_SAMPLE_1 = '''
-    INSERT OR IGNORE INTO templates (id, name, version, content, is_archived)
-    VALUES (1, 'Sample 1', 'v1.0', 'Sample 1 Content', FALSE);
-    '''
-    SQL_SAMPLE_2 = '''
-    INSERT OR IGNORE INTO templates (id, name, version, content, is_archived)
-    VALUES (2, 'Sample 2', 'v1.0', 'Sample 2 Content', FALSE);
-    '''
-    SQL_SAMPLE_3 = '''
-    INSERT OR IGNORE INTO templates (id, name, version, content, is_archived)
-    VALUES (3, 'Sample 3', 'v0.1', 'Sample 3 Content', TRUE);
+    SQL_RESET = '''
+    DELETE
+    FROM templates;
     '''
 
-    def __init__(self, sample: bool = False):
+    def __init__(self):
         """Initialises this database."""
-        self._db = 'libstupa-sample.db' if sample else 'libstupa.db'
+        self._db = 'libstupa.db'
         self.exec(Db.SQL_INIT_TABLE, None)
         self.exec(Db.SQL_INIT_INDEX_NAME, None)
         self.exec(Db.SQL_INIT_INDEX_VERSION, None)
-        if sample:
-            self.exec(Db.SQL_SAMPLE_1, None)
-            self.exec(Db.SQL_SAMPLE_2, None)
-            self.exec(Db.SQL_SAMPLE_3, None)
 
     def exec(self, sql: str, params: Optional[Tuple]) -> List:
         """Executes a query with optional parameters."""

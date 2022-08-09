@@ -4,43 +4,43 @@ Feature: Listing active templates
   So that I can get a snapshot of them
 
   Scenario: Listing results in JSON when there are 0 active templates
-    Given there are no active templates
-    When stupa -js active is invoked successfully
+    Given there are 0 active template(s)
+    When stupa -j active is invoked successfully
     Then "status": "OK" is printed
     Then "count": 0 is printed
-    Then null "templates" JSON array is printed
+    Then JSON array with 0 "templates" is printed
 
   Scenario: Listing results without JSON when there are 0 active templates
-    Given there are no active templates
-    When stupa -s active is invoked sucessfully
+    Given there are 0 active template(s)
+    When stupa active is invoked successfully
     Then OK: is printed
     Then 0 template(s) found is printed
-    Then template listing is not printed
+    Then template listing with 0 item(s) is printed
 
   Scenario: Listing results in JSON when there is 1 active template
-    Given there is 1 active template
-    When stupa -js active is invoked
+    Given there are 1 active template(s)
+    When stupa -j active is invoked successfully
     Then "status": "OK" is printed
     Then "count": 1 is printed
-    Then "templates" JSON array with 1 item is printed
+    Then JSON array with 1 "templates" is printed
 
   Scenario: Listing results without JSON when there is 1 active template
-    Given there is 1 active template
-    When stupa -s active is invoked successfully
+    Given there are 1 active template(s)
+    When stupa active is invoked successfully
     Then OK: is printed
     Then 1 template(s) found is printed
-    Then template listing with 1 item is printed
+    Then template listing with 1 item(s) is printed
 
   Scenario: Listing results in JSON when there are 3 active templates
-    Given there are 3 active template
-    When stupa -js active is invoked
+    Given there are 3 active template(s)
+    When stupa -j active is invoked successfully
     Then "status": "OK" is printed
     Then "count": 3 is printed
-    Then "templates" JSON array with 3 items is printed
+    Then JSON array with 3 "templates" is printed
 
   Scenario: Listing results without JSON when there are 3 active templates
-    Given there are 3 active templates
-    When stupa -s active is invoked successfully
+    Given there are 3 active template(s)
+    When stupa active is invoked successfully
     Then OK: is printed
     Then 3 template(s) found is printed
-    Then template listing with 3 items is printed
+    Then template listing with 3 item(s) is printed
