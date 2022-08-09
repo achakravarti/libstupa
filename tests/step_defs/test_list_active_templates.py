@@ -61,7 +61,7 @@ def insert_sample(index):
 def insert_samples(count):
     i = 0
     while count > 0 and i < count:
-        insert_sample(i - 1)
+        insert_sample(i)
         i = i + 1
 
 
