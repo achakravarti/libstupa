@@ -5,7 +5,7 @@ from pytest_bdd import parsers, scenarios, given, when, then
 from subprocess import Popen, PIPE
 
 
-scenarios('../features/list_active_templates.feature')
+scenarios('../features/active.feature')
 
 RC = -1
 STDOUT = b''

@@ -6,7 +6,7 @@ from pytest_bdd import scenarios, given, when, then
 from subprocess import Popen, PIPE
 
 
-scenarios('../features/archive_template.feature')
+scenarios('../features/archive.feature')
 
 
 @fixture
