@@ -120,13 +120,13 @@ class Cmd:
         elif self._opts.Version == True:
             self.Version()
         elif self._rule not in [
-                'active', 'archived', 'load', 'render', 'create', 'update',
-                'archive', 'restore', 'delete', 'count_active',
-                'count_archived', 'reset']:
+                'list-active', 'list-archived', 'load', 'render', 'create',
+                'update', 'archive', 'restore', 'delete', 'count-active',
+                'count-archived', 'reset']:
             raise InvalidOperationError(
                 'rule {} not recognized'.format(self._rule))
         else:
-            getattr(self, self._rule)()
+            getattr(self, self._rule.replace('-', '_'))()
 
     def Help(self):
         """Handles -H option."""
@@ -144,7 +144,7 @@ class Cmd:
 
     def count_active(self):
         """Handles count-active command."""
-        Validate('count_active', self._opts).none()
+        Validate('count-active', self._opts).none()
         res = Rule().count_active()
         if self._opts.json:
             print(f'{{"status": "OK", "count": {res}}}')
@@ -153,16 +153,16 @@ class Cmd:
 
     def count_archived(self):
         """Handles count-active command."""
-        Validate('count_archived', self._opts).none()
+        Validate('count-archived', self._opts).none()
         res = Rule().count_archived()
         if self._opts.json:
             print(f'{{"status": "OK", "count": {res}}}')
         else:
             print(f'OK: {res} template(s) found')
 
-    def active(self):
-        """Handles active command."""
-        Validate('list_active', self._opts).none()
+    def list_active(self):
+        """Handles list-active command."""
+        Validate('list-active', self._opts).none()
         res = Rule().list_active()
         count = len(res)
         if self._opts.json:
@@ -172,11 +172,16 @@ class Cmd:
             print(json.dumps(j, indent=2))
         else:
             print(f'OK: {count} template(s) found')
-            print(res)
+            for x in res:
+                print('id: {}'.format(x.id_))
+                print('name: {}'.format(x.name))
+                print('version: {}'.format(x.version))
+                print('')
 
-    def archived(self):
-        """Handles archived command."""
-        Validate('list_archived', self._opts).none()
+
+    def list_archived(self):
+        """Handles list-archived command."""
+        Validate('list-archived', self._opts).none()
         res = Rule().list_archived()
         count = len(res)
         if self._opts.json:
@@ -186,7 +191,11 @@ class Cmd:
             print(json.dumps(j, indent=2))
         else:
             print(f'OK: {count} template(s) found')
-            print(res)
+            for x in res:
+                print('id: {}'.format(x.id_))
+                print('name: {}'.format(x.name))
+                print('version: {}'.format(x.version))
+                print('')
 
     def load(self):
         """Handles load command."""
