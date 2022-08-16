@@ -7,3 +7,7 @@
 # Vagrant artefacts
 .vagrant
 Vagrantfile
+
+# Python artefacts
+venv/
+*pyc
